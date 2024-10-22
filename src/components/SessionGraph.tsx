@@ -101,7 +101,7 @@ const InfoBox = ({
         Majority: <PartyBadge party={majority} /> {`(${distDescription})`}
       </div>
       <div style={sectionStyle}>
-        Aggregated Scores: <PartyBadge party="D" /> {dSum.toFixed(2)}{" "}
+        Aggregate Scores: <PartyBadge party="D" /> {dSum.toFixed(2)}{" "}
         <PartyBadge party="R" /> {rSum.toFixed(2)}
       </div>
     </div>

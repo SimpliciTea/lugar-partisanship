@@ -2,6 +2,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  font-size: 15px;
 
   color: var(--color-white);
   background-color: var(--color-black);
@@ -14,11 +15,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--color-link-blue);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--color-link-blue-highlight);
 }
 
 body {
@@ -29,7 +30,21 @@ body {
   min-height: 100vh;
 }
 
+p {
+  margin-top: 5px;
+}
+
 h1 {
   font-size: 3.2em;
+  line-height: 1.1;
+}
+
+h2 {
+  margin-bottom: 0px;
+  line-height: 1.1;
+}
+
+h3 {
+  margin-bottom: 0px;
   line-height: 1.1;
 }
