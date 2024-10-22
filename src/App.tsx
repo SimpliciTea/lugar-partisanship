@@ -59,13 +59,13 @@ function App() {
         <p>
           <ul>
             <li>
-              Each chart is ordered from most positive to least positive
-              bipartisanship score.
+              Each bar on the chart represents one congressman's score for the
+              session
             </li>
             <li>
-              Each congressman gets a bar on the chart, the width of which
-              denotes the magnitude.
+              The width of the bar represents the magnitude of their score
             </li>
+            <li>The chart is ordered from most positive to most negative</li>
             <li>
               The dark bar in the center of each chart represents the point
               where scores move from positive to negative.
