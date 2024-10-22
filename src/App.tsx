@@ -2,9 +2,17 @@ import { SessionGraph } from "./components/SessionGraph";
 import { Score } from "./scripts/scraper";
 import sessionsJson from "./data/sessions.json";
 import { ordinalizeNumber } from "./utils/ordinalizeNumber";
-import React from "react";
+import React, { useState } from "react";
+
+export type ViewMode = "standard" | "condensed";
 
 function App() {
+  const [viewMode, setViewMode] = useState<ViewMode>("standard");
+
+  const handleSelectViewMode = (e: React.MouseEvent<HTMLInputElement>) => {
+    setViewMode(e.currentTarget.value as ViewMode);
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ paddingLeft: 10 }}>
@@ -74,6 +82,29 @@ function App() {
         </p>
 
         <p>Thanks for visiting!</p>
+
+        <p>
+          View:
+          <br />
+          <input
+            type="radio"
+            name="view-mode"
+            value="standard"
+            onClick={handleSelectViewMode}
+            checked={viewMode === "standard"}
+            style={{ marginLeft: 0, marginRight: 5 }}
+          />
+          Standard
+          <input
+            type="radio"
+            name="view-mode"
+            value="condensed"
+            onClick={handleSelectViewMode}
+            checked={viewMode === "condensed"}
+            style={{ marginLeft: 10, marginRight: 5 }}
+          />
+          Condensed
+        </p>
         <hr />
       </div>
       {sessionsJson.map(
@@ -92,16 +123,37 @@ function App() {
 
           return (
             <>
-              <h3 style={{ color: "white", marginBottom: 10, marginLeft: 10 }}>
-                {sessionDescription}&nbsp;
-                <a href={senateUrl}>#</a>
-                {!!houseUrl && <a href={houseUrl}>#</a>}
-              </h3>
+              {viewMode === "standard" && (
+                <h3
+                  style={{ color: "white", marginBottom: 10, marginLeft: 10 }}
+                >
+                  {sessionDescription}&nbsp;
+                  <a href={senateUrl}>#</a>
+                  {!!houseUrl && <a href={houseUrl}>#</a>}
+                </h3>
+              )}
+
+              {viewMode === "condensed" && (
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: "white",
+                    marginBottom: 1,
+                  }}
+                >
+                  <strong>
+                    {sessionDescription}&nbsp;
+                    <a href={senateUrl}>#</a>
+                    {!!houseUrl && <a href={houseUrl}>#</a>}
+                  </strong>
+                </div>
+              )}
 
               <SessionGraph
                 chamber="senate"
                 scores={senateScores as Score[]}
                 startYear={startYear}
+                viewMode={viewMode}
               />
 
               {houseScores && (
@@ -109,6 +161,7 @@ function App() {
                   chamber="house"
                   scores={houseScores as Score[]}
                   startYear={startYear}
+                  viewMode={viewMode}
                 />
               )}
             </>

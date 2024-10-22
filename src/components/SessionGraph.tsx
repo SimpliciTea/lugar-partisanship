@@ -1,17 +1,20 @@
 import { Score } from "../scripts/scraper";
 import { useDimensions } from "../hooks/useWindow";
 import React, { useMemo, useRef } from "react";
+import { ViewMode } from "../App";
 
 type SessionGraphProps = {
   scores: Score[];
   chamber: "house" | "senate";
   startYear: number;
+  viewMode: ViewMode;
 };
 
 export const SessionGraph = ({
   scores,
   chamber,
   startYear,
+  viewMode,
 }: SessionGraphProps) => {
   const containerElementRef = useRef<HTMLDivElement>(null);
   const containerDims = useDimensions(containerElementRef);
@@ -28,59 +31,64 @@ export const SessionGraph = ({
   }, [scores, containerDims.width]);
 
   let zeroLinePassed = false;
+  const graphHeight = viewMode === "standard" ? 400 : 50;
 
   return (
-    <div
-      ref={containerElementRef}
-      style={{
-        display: "flex",
-        flexWrap: "nowrap",
-        width: "100%",
-        height: 400,
-        marginBottom: 2,
-        position: "relative",
-      }}
-    >
-      <InfoBox {...agg} chamber={chamber} />
+    <div style={{ width: "100%", position: "relative" }}>
+      {viewMode === "standard" ? (
+        <InfoBadges {...agg} chamber={chamber} />
+      ) : (
+        <InfoBar {...agg} chamber={chamber} />
+      )}
+      <div
+        ref={containerElementRef}
+        style={{
+          display: "flex",
+          flexWrap: "nowrap",
+          width: "100%",
+          height: graphHeight,
+          marginBottom: 2,
+        }}
+      >
+        {scores.map(({ score, partyAbbreviation }, i) => {
+          const ratio = Math.abs(score) / agg.scoreSpace;
 
-      {scores.map(({ score, partyAbbreviation }, i) => {
-        const ratio = Math.abs(score) / agg.scoreSpace;
+          const shouldPaintZeroLine = !zeroLinePassed && score < 0;
+          if (shouldPaintZeroLine) zeroLinePassed = true;
 
-        const shouldPaintZeroLine = !zeroLinePassed && score < 0;
-        if (shouldPaintZeroLine) zeroLinePassed = true;
-
-        return (
-          <>
-            <div
-              key={i}
-              style={{
-                width: `calc(${ratio} * ${dataSpace}px)`,
-                height: 400,
-                flexShrink: 0,
-                marginRight: 1,
-                flexGrow: 0,
-                backgroundColor: getPartyColor(partyAbbreviation),
-              }}
-            />
-            {!!shouldPaintZeroLine && <ZeroLine />}
-          </>
-        );
-      })}
+          return (
+            <>
+              <div
+                key={i}
+                style={{
+                  width: `calc(${ratio} * ${dataSpace}px)`,
+                  height: graphHeight,
+                  flexShrink: 0,
+                  marginRight: 1,
+                  flexGrow: 0,
+                  backgroundColor: getPartyColor(partyAbbreviation),
+                }}
+              />
+              {!!shouldPaintZeroLine && <ZeroLine />}
+            </>
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-type InfoBoxProps = ReturnType<typeof getAggregates> & {
+type InfoDisplayProps = ReturnType<typeof getAggregates> & {
   chamber: "house" | "senate";
 };
-const InfoBox = ({
+const InfoBadges = ({
   majority,
   rCount,
   dCount,
   rSum,
   dSum,
   chamber,
-}: InfoBoxProps) => {
+}: InfoDisplayProps) => {
   const distDescription =
     majority === "R" ? `${rCount} - ${dCount}` : `${dCount} - ${rCount}`;
 
@@ -108,6 +116,48 @@ const InfoBox = ({
   );
 };
 
+const InfoBar = ({
+  majority,
+  rCount,
+  dCount,
+  rSum,
+  dSum,
+  chamber,
+}: InfoDisplayProps) => {
+  const distDescription =
+    majority === "R" ? `${rCount} - ${dCount}` : `${dCount} - ${rCount}`;
+
+  return (
+    <div
+      style={{
+        fontSize: 10,
+        fontWeight: "bold",
+        backgroundColor: "var(--color-black)",
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        // borderBottom: "1px solid rgba(255, 255, 255, .5)",
+        display: "flex",
+        padding: 2,
+        textTransform: "uppercase",
+        lineHeight: "1em",
+      }}
+    >
+      {chamber}
+      <Separator />
+      Majority:&nbsp;
+      <PartyBadge party={majority} />
+      &nbsp;{`(${distDescription})`}
+      <Separator />
+      Aggregate Scores:&nbsp;
+      <PartyBadge party="D" />
+      &nbsp;{dSum.toFixed(2)}&nbsp;
+      <PartyBadge party="R" />
+      &nbsp;{rSum.toFixed(2)}
+    </div>
+  );
+};
+
 type PartyBadgeProps = { party: "R" | "D" };
 const PartyBadge = ({ party }: PartyBadgeProps) => (
   <div
@@ -122,6 +172,8 @@ const PartyBadge = ({ party }: PartyBadgeProps) => (
     }}
   />
 );
+
+const Separator = () => <div style={{ margin: "0px 10px" }}></div>;
 
 const zeroLineWidth = 10;
 const ZeroLine = () => (
